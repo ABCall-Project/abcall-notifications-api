@@ -1,0 +1,60 @@
+###################################
+# abcall-customer-api
+###################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: abcall-notification-api
+  labels:
+    app: abcall-notification-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: abcall-notification-api
+  template:
+    metadata:
+      labels:
+        app: abcall-notification-api
+    spec:
+      containers:
+        - name: abcall-notification-api
+          image: abcall.azurecr.io/abcall-notification-api:1.0.0
+          env:
+            - name: "FLASK_APP"
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-configmap
+                  key: FLASK_APP
+            - name: "FLASK_ENV"
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-configmap
+                  key: FLASK_ENV
+            - name: "APP_NAME"
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-configmap
+                  key: APP_NAME
+            - name: "DATABASE_URI"
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secrets
+                  key: DATABASE_URI
+          ports:
+            - containerPort: 3006
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: abcall-notification-api-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: abcall-notification-api
+  ports:
+    - protocol: TCP
+      port: 3006
+      targetPort: 3006

@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  api-notification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: abcall-notification-api
+    restart: always
+    volumes:
+      - ".:/app"
+    ports:
+      - "3006:3006"
+    env_file:
+      - .env
+    tty: true
